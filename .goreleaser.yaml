@@ -1,0 +1,69 @@
+version: 2
+
+project_name: morphr
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X morphr/cmd.Version={{.Version}}
+      - -X morphr/cmd.BuildTime={{.Date}}
+    binary: morphr
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+
+brews:
+  - repository:
+      owner: idrewlong
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: Formula
+    name: morphr
+    homepage: "https://github.com/idrewlong/morphr"
+    description: "Fast RAW image converter CLI — CR2, NEF, ARW, DNG to JPEG, PNG, TIFF, WebP, AVIF"
+    license: "MIT"
+    dependencies:
+      - name: dcraw
+      - name: exiftool
+      - name: webp
+      - name: libavif
+    install: |
+      bin.install "morphr"
+    test: |
+      system "#{bin}/morphr", "--help"
+    commit_msg_template: "Update morphr to {{ .Tag }}"
+
+release:
+  github:
+    owner: idrewlong
+    name: morphr
+  draft: true
+  prerelease: auto
