@@ -20,6 +20,9 @@ jobs:
         with:
           go-version: "1.24"
 
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y dcraw libimage-exiftool-perl webp libavif-bin
+
       - name: Run tests
         run: go test ./... -timeout 120s
 
