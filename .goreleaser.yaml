@@ -65,5 +65,4 @@ release:
   github:
     owner: idrewlong
     name: morphr
-  draft: true
   prerelease: auto
