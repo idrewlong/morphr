@@ -17,7 +17,13 @@ var rootCmd = &cobra.Command{
 	Short: "Fast RAW image converter",
 	Long: `Morphr is a fast, dependency-light command-line tool for converting
 camera RAW image files (CR2, NEF, ARW, DNG, RAF, ORF, etc.) into
-standard formats like JPEG, PNG, TIFF, and WebP.`,
+standard formats like JPEG, PNG, TIFF, and WebP.
+
+Run with no arguments to launch the interactive wizard.`,
+	Args: cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runWizard()
+	},
 }
 
 func Execute() {

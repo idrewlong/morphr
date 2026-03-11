@@ -23,20 +23,20 @@ func (e *WebPEncoder) Encode(w io.Writer, img image.Image, opts Options) error {
 	if err != nil {
 		return fmt.Errorf("create temp input: %w", err)
 	}
-	defer os.Remove(tmpIn.Name())
-
 	if err := png.Encode(tmpIn, img); err != nil {
 		tmpIn.Close()
+		os.Remove(tmpIn.Name())
 		return fmt.Errorf("encode temp PNG: %w", err)
 	}
 	tmpIn.Close()
+	defer os.Remove(tmpIn.Name())
 
 	tmpOut, err := os.CreateTemp("", "morphr-*.webp")
 	if err != nil {
 		return fmt.Errorf("create temp output: %w", err)
 	}
-	defer os.Remove(tmpOut.Name())
 	tmpOut.Close()
+	defer os.Remove(tmpOut.Name())
 
 	quality := opts.Quality
 	if quality <= 0 || quality > 100 {

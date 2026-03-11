@@ -40,11 +40,17 @@ func (d *DcrawDecoder) Decode(path string) (*Result, error) {
 		return nil, fmt.Errorf("dcraw is not installed")
 	}
 
-	// -c  write to stdout
+	// dcraw_emu (LibRaw) uses "-Z -" to write to stdout.
+	// Classic dcraw uses bare "-c" with no argument.
 	// -T  output TIFF format
 	// -w  use camera white balance
 	// -q 3  AHD interpolation (highest quality demosaicing)
-	args := []string{"-c", "-T", "-w", "-q", "3", path}
+	var args []string
+	if filepath.Base(d.binary) == "dcraw_emu" {
+		args = []string{"-Z", "-", "-T", "-w", "-q", "3", path}
+	} else {
+		args = []string{"-c", "-T", "-w", "-q", "3", path}
+	}
 
 	cmd := exec.Command(d.binary, args...)
 	var stdout bytes.Buffer

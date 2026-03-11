@@ -191,7 +191,7 @@ func TestEndToEndFullPipeline(t *testing.T) {
 	img = processor.Resize(img, 400, 300, 0)
 	img = processor.ConvertColorSpace(img, "prophoto")
 
-	for _, format := range []string{"jpeg", "png", "tiff"} {
+	for _, format := range []string{"jpeg", "png", "tiff", "webp", "avif"} {
 		t.Run(format, func(t *testing.T) {
 			enc, err := encoder.Get(format)
 			if err != nil {

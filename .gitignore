@@ -1,6 +1,10 @@
 # Binary
 morphr
+morphr.exe
 bin/
+dist/
+
+# GoReleaser
 dist/
 
 # IDE
@@ -13,6 +17,17 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Test
+# Test artifacts
 *.test
 coverage.out
+*.prof
+*.log
+
+# Environment / secrets
+.env
+.env.*
+
+# Temp files from WebP/AVIF encoders (normally in OS temp, but just in case)
+morphr-*.png
+morphr-*.webp
+morphr-*.avif

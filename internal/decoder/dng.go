@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/rwcarlsen/goexif/exif"
 	_ "golang.org/x/image/tiff"
 )
 
@@ -45,11 +46,38 @@ func (d *DNGDecoder) Decode(path string) (*Result, error) {
 	}
 
 	bounds := img.Bounds()
-	return &Result{
-		Image: img,
-		Meta: &Metadata{
-			Width:  bounds.Dx(),
-			Height: bounds.Dy(),
-		},
-	}, nil
+	meta := &Metadata{
+		Width:       bounds.Dx(),
+		Height:      bounds.Dy(),
+		Orientation: 1,
+	}
+
+	// Read EXIF to populate orientation and camera metadata.
+	// Open a second handle so image.Decode's read position doesn't interfere.
+	if ef, err := os.Open(path); err == nil {
+		defer ef.Close()
+		if x, err := exif.Decode(ef); err == nil {
+			if tag, err := x.Get(exif.Orientation); err == nil {
+				if o, err := tag.Int(0); err == nil {
+					meta.Orientation = o
+				}
+			}
+			if tag, err := x.Get(exif.Make); err == nil {
+				meta.CameraMake, _ = tag.StringVal()
+			}
+			if tag, err := x.Get(exif.Model); err == nil {
+				meta.CameraModel, _ = tag.StringVal()
+			}
+			if tag, err := x.Get(exif.ISOSpeedRatings); err == nil {
+				if iso, err := tag.Int(0); err == nil {
+					meta.ISO = iso
+				}
+			}
+			if t, err := x.DateTime(); err == nil {
+				meta.DateTime = t
+			}
+		}
+	}
+
+	return &Result{Image: img, Meta: meta}, nil
 }
